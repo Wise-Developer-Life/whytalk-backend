@@ -24,4 +24,17 @@ export class User {
 
   @Column({ nullable: false })
   birthDate: Date;
+
+  getAge(): number {
+    const now = new Date();
+    const age = now.getFullYear() - this.birthDate.getFullYear();
+    if (
+      now.getMonth() < this.birthDate.getMonth() ||
+      (now.getMonth() === this.birthDate.getMonth() &&
+        now.getDate() < this.birthDate.getDate())
+    ) {
+      return age - 1;
+    }
+    return age;
+  }
 }

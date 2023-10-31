@@ -6,17 +6,23 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatSocketGateway } from './chat-socket/chat-socket.gateway';
+import { AuthModule } from './auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'postgres',
-      synchronize: true,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DATABASE_HOST'),
+        port: configService.get<number>('DATABASE_PORT'),
+        username: configService.get<string>('DATABASE_USERNAME'),
+        password: configService.get<string>('DATABASE_PASSWORD'),
+        database: configService.get<string>('DATABASE_NAME'),
+        synchronize: true,
+      }),
     }),
     ConfigModule.forRoot({
       envFilePath: ['./config/.env'],
@@ -24,6 +30,7 @@ import { ChatSocketGateway } from './chat-socket/chat-socket.gateway';
     }),
     ChatMessageModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService, ChatSocketGateway],
