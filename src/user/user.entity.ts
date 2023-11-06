@@ -6,26 +6,34 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
+  @Column({
+    nullable: false,
+    unique: true,
+  })
   email: string;
 
-  @Column()
-  password: string;
-
-  @Column({ nullable: false })
+  @Column({
+    nullable: false,
+  })
   name: string;
 
   @Column({
     type: 'enum',
     enum: Gender,
-    nullable: false,
+    nullable: true,
   })
   gender: Gender;
 
-  @Column({ nullable: false })
+  @Column({
+    nullable: true,
+  })
   birthDate: Date;
 
   getAge(): number {
+    if (!this.birthDate) {
+      throw new Error('Birth date is not set');
+    }
+
     const now = new Date();
     const age = now.getFullYear() - this.birthDate.getFullYear();
     if (

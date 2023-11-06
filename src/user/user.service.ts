@@ -14,8 +14,12 @@ export class UserService {
     return this.userRepository.findOneBy({ id: userId });
   }
 
+  async getUserByEmail(email: string) {
+    return this.userRepository.findOneBy({ email });
+  }
+
   async createUser(user: CreateUserDto) {
-    return this.userRepository.create(user);
+    return this.userRepository.save(user);
   }
 
   async updateUser(userId: string, updateRequest: UpdateUserDto) {
@@ -29,5 +33,13 @@ export class UserService {
     }
 
     return this.userRepository.save(user);
+  }
+
+  async isUserExistByEmail(email: string) {
+    return this.userRepository.exist({
+      where: {
+        email,
+      },
+    });
   }
 }

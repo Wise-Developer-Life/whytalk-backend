@@ -22,7 +22,7 @@ export class ChatMessage {
   @Column()
   toUserId: string;
 
-  @ManyToOne(() => ChatRoom)
+  @ManyToOne(() => ChatRoom, { cascade: ['update'] })
   chatRoom: ChatRoom;
 
   @CreateDateColumn({ type: 'timestamp' })
