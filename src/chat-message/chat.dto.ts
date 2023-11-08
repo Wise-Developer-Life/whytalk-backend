@@ -11,8 +11,16 @@ export interface CreateChatRoomRequest {
 }
 
 export interface CreateMessageRequest {
-  chatRoomId: string;
   fromUserId: string;
   toUserId: string;
   content: string;
+}
+
+export interface ChatMessageResponse {
+  id: number;
+  content: string;
+  fromUserId: string;
+  toUserId: string;
+  chatRoomId: string;
+  createdAt: Date;
 }

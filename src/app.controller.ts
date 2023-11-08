@@ -1,6 +1,7 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
 interface RequestWithUser extends Request {
   user: any;
@@ -10,8 +11,9 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getHello(@Req() request: Request): string {
+    return `Hello ${request.cookies}`;
+    // return this.appService.getHello();
   }
 
   @Get('/private')

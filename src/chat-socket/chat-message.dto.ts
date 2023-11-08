@@ -6,7 +6,7 @@ export interface ChatMessageSocketRequest {
 }
 
 export interface ChatMessageSocketResponse extends ChatMessageSocketRequest {
-  createdAt: number;
+  createdAt: Date;
 }
 
 export interface JoinRoomSocketRequest {

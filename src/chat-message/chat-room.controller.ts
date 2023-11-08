@@ -22,7 +22,7 @@ export class ChatRoomController {
     @Query('offset') offset: number,
     @Query('limit') limit: number,
   ): Promise<CommonResponse<ChatRoom[]>> {
-    const chatRooms = await this.chatRoomService.getChatRoomByUserId(
+    const chatRooms = await this.chatRoomService.getChatRoomsByUserId(
       userId,
       offset,
       limit,

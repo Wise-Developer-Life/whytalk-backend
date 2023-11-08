@@ -3,27 +3,36 @@ import { LessThanOrEqual, Repository } from 'typeorm';
 import { ChatMessage } from './chat-message.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMessageDTO } from './chat.dto';
+import { ChatRoomService } from './chat-room.service';
 
 @Injectable()
 export class ChatMessageService {
   constructor(
     @InjectRepository(ChatMessage)
     private chatMessageRepository: Repository<ChatMessage>,
+    private chatRoomService: ChatRoomService,
   ) {}
 
   async createChatMessage(chatMessage: CreateMessageDTO) {
+    const { chatRoomId } = chatMessage;
     const messageEntity = this.chatMessageRepository.create({
       content: chatMessage.content,
       fromUserId: chatMessage.fromUserId,
       toUserId: chatMessage.toUserId,
-      chatRoom: {
-        id: chatMessage.chatRoomId,
-        updatedAt: Date.now(),
-      },
+      chatRoom: { id: chatRoomId },
     });
-    return this.chatMessageRepository.save(messageEntity);
-  }
 
+    const newMessage = await this.chatMessageRepository.save(messageEntity);
+    await this.chatRoomService.updateChatRoom(chatRoomId, newMessage);
+
+    return newMessage;
+  }
+  async getChatMessage(messageId: number) {
+    return this.chatMessageRepository.findOne({
+      where: { id: messageId },
+      relations: ['chatRoom'],
+    });
+  }
   async getChatMessages(chatRoomId: string, messageId: number, limit: number) {
     return this.chatMessageRepository.find({
       where: {
@@ -38,16 +47,15 @@ export class ChatMessageService {
   }
 
   async updateMessage(messageId: number, content: string) {
-    const oldMessage = await this.chatMessageRepository.findOneBy({
-      id: messageId,
+    const updatedResult = await this.chatMessageRepository.update(messageId, {
+      content,
     });
 
-    if (!oldMessage || !content) {
-      return undefined;
+    if (updatedResult.affected !== 1) {
+      return null;
     }
 
-    oldMessage.content = content;
-    return this.chatMessageRepository.save(oldMessage);
+    return this.getChatMessage(messageId);
   }
 
   async deleteMessage(messageId: number) {

@@ -9,6 +9,9 @@ import { ChatSocketGateway } from './chat-socket/chat-socket.gateway';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { User } from './user/user.entity';
+import { ChatRoom } from './chat-message/chat-room.entity';
+import { ChatMessage } from './chat-message/chat-message.entity';
+import { ChatSocketModule } from './chat-socket/chat-socket.module';
 
 @Module({
   imports: [
@@ -23,7 +26,7 @@ import { User } from './user/user.entity';
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
         synchronize: true,
-        entities: [User],
+        entities: [User, ChatRoom, ChatMessage],
       }),
     }),
     ConfigModule.forRoot({
@@ -33,6 +36,7 @@ import { User } from './user/user.entity';
     ChatMessageModule,
     UserModule,
     AuthModule,
+    ChatSocketModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService, ChatSocketGateway],

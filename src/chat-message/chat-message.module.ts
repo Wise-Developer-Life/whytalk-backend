@@ -11,5 +11,6 @@ import { ChatRoomService } from './chat-room.service';
   imports: [TypeOrmModule.forFeature([ChatMessage, ChatRoom])],
   controllers: [ChatMessageController, ChatRoomController],
   providers: [ChatMessageService, ChatRoomService],
+  exports: [ChatMessageService],
 })
 export class ChatMessageModule {}

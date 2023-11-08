@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ChatMessageService } from './chat-message.service';
-import { CreateMessageRequest } from './chat.dto';
+import { ChatMessageResponse, CreateMessageRequest } from './chat.dto';
 import { CommonResponse, EmptyResponse } from '../common/common.dto';
 
 @Controller('chat-message')
@@ -28,17 +28,26 @@ export class ChatMessageController {
     );
   }
 
-  @Post()
+  @Post(':chatRoomId')
   async createMessage(
+    @Param('chatRoomId') chatRoomId: string,
     @Body() createMessageRequest: CreateMessageRequest,
-  ): Promise<CommonResponse<any>> {
+  ): Promise<CommonResponse<ChatMessageResponse>> {
     const message = await this.chatMessageService.createChatMessage({
       ...createMessageRequest,
+      chatRoomId,
     });
 
     return {
       message: 'success',
-      data: message,
+      data: {
+        content: message.content,
+        id: message.id,
+        fromUserId: message.fromUserId,
+        toUserId: message.toUserId,
+        chatRoomId: message.chatRoom.id,
+        createdAt: message.createdAt,
+      },
     };
   }
 
@@ -46,14 +55,22 @@ export class ChatMessageController {
   async updateMessage(
     @Param('messageId') messageId: number,
     @Body('content') content: string,
-  ): Promise<CommonResponse<any>> {
-    const newMessage = await this.chatMessageService.updateMessage(
+  ): Promise<CommonResponse<ChatMessageResponse>> {
+    const updatedMessage = await this.chatMessageService.updateMessage(
       messageId,
       content,
     );
+
     return {
-      message: newMessage ? 'success' : 'fail',
-      data: newMessage,
+      message: updatedMessage ? 'success' : 'fail',
+      data: {
+        content: updatedMessage.content,
+        id: updatedMessage.id,
+        fromUserId: updatedMessage.fromUserId,
+        toUserId: updatedMessage.toUserId,
+        chatRoomId: updatedMessage.chatRoom.id,
+        createdAt: updatedMessage.createdAt,
+      },
     };
   }
 

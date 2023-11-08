@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
@@ -23,7 +23,6 @@ export class AuthController {
     return request.user;
   }
 
-  // TODO: redirect this
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleOAuthCallback(@Req() request: RequestWithOAuthUser) {
@@ -41,9 +40,9 @@ export class AuthController {
       await this.userService.createUser(userPayload);
     }
 
-    const currentUser = await this.userService.getUserByEmail(
-      userPayload.email,
-    );
+    // const currentUser = await this.userService.getUserByEmail(
+    //   userPayload.email,
+    // );
 
     // generate token
     const accessToken = await this.jwtService.signAsync(
@@ -58,7 +57,6 @@ export class AuthController {
 
     return {
       accessToken,
-      user: currentUser,
     };
   }
 }

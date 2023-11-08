@@ -2,7 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -19,15 +20,17 @@ export class ChatRoom {
   @Column()
   user2Id: string;
 
-  @OneToMany(() => ChatMessage, (chatMessage) => chatMessage.chatRoom, {
-    cascade: ['soft-remove'],
-    lazy: true,
-  })
-  messages: ChatMessage[];
+  @OneToOne(() => ChatMessage, { nullable: true })
+  @JoinColumn()
+  lastMessage: ChatMessage;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({
+    type: 'timestamp',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn({
+    type: 'timestamp',
+  })
   updatedAt: Date;
 }

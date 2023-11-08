@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatRoom } from './chat-room.entity';
 import { Repository } from 'typeorm';
+import { ChatMessage } from './chat-message.entity';
 
 @Injectable()
 export class ChatRoomService {
@@ -11,6 +12,15 @@ export class ChatRoomService {
   ) {}
 
   async createChatRoom(user1: string, user2: string) {
+    const existChatRoom = await this.getChatRoom(user1, user2);
+
+    if (existChatRoom) {
+      throw new HttpException(
+        `Chat room for user ${user1} and user ${user2} already exist`,
+        500,
+      );
+    }
+
     const chatRoom = this.chatRoomRepository.create({
       user1Id: user1,
       user2Id: user2,
@@ -27,7 +37,11 @@ export class ChatRoomService {
     });
   }
 
-  async getChatRoomByUserId(userId: string, offset: number, limit: number) {
+  async getChatRoomById(chatRoomId: string) {
+    return this.chatRoomRepository.findOneBy({ id: chatRoomId });
+  }
+
+  async getChatRoomsByUserId(userId: string, offset: number, limit: number) {
     return this.chatRoomRepository.find({
       where: [{ user1Id: userId }, { user2Id: userId }],
       order: {
@@ -38,6 +52,17 @@ export class ChatRoomService {
     });
   }
 
+  async updateChatRoom(chatRoomId: string, lastMessage: ChatMessage) {
+    const chatRoom = await this.getChatRoomById(chatRoomId);
+    if (!chatRoom) {
+      return;
+    }
+
+    chatRoom.lastMessage = lastMessage;
+    return this.chatRoomRepository.save(chatRoom);
+  }
+
+  // FIXME
   async deleteChatRoom(chatRoomId: string) {
     const result = await this.chatRoomRepository.delete(chatRoomId);
     return result.affected === 1;
