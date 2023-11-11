@@ -7,19 +7,16 @@ WORKDIR /app
 # Copy the entire NestJS application to the container
 COPY . .
 
-# Install pnpm globally
-RUN npm install -g pnpm
-
 # install nest-cli globally
 RUN npm install -g @nestjs/cli
 
 # install production dependencies
-RUN pnpm install --production
+RUN npm install --production
 
 # Install application dependencies using pnpm
-RUN pnpm build
+RUN npm build
 
-CMD [ "pnpm", "run", "start:prod" ]
+CMD [ "npm", "run", "start:prod" ]
 
 
 

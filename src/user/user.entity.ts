@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Gender } from './user.type';
+import { ProfileImage } from './profile_image.entity';
 
 @Entity()
 export class User {
@@ -27,7 +28,18 @@ export class User {
   @Column({
     nullable: true,
   })
+  bio: string;
+
+  @Column({
+    nullable: true,
+  })
   birthDate: Date;
+
+  @OneToMany(() => ProfileImage, (profileImage) => profileImage.user, {
+    cascade: true,
+    lazy: true,
+  })
+  profileImages: Promise<ProfileImage[]>;
 
   getAge(): number {
     if (!this.birthDate) {
@@ -44,5 +56,13 @@ export class User {
       return age - 1;
     }
     return age;
+  }
+
+  async getProfileImages(sorted = false) {
+    const images = (await this.profileImages) ?? [];
+    if (sorted) {
+      images.sort((a, b) => a.order - b.order);
+    }
+    return images;
   }
 }

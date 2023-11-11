@@ -12,6 +12,7 @@ import { User } from './user/user.entity';
 import { ChatRoom } from './chat-message/chat-room.entity';
 import { ChatMessage } from './chat-message/chat-message.entity';
 import { ChatSocketModule } from './chat-socket/chat-socket.module';
+import { ProfileImage } from './user/profile_image.entity';
 
 @Module({
   imports: [
@@ -26,11 +27,12 @@ import { ChatSocketModule } from './chat-socket/chat-socket.module';
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
         synchronize: true,
-        entities: [User, ChatRoom, ChatMessage],
+        entities: [User, ChatRoom, ChatMessage, ProfileImage],
       }),
     }),
     ConfigModule.forRoot({
-      envFilePath: ['./config/.env'],
+      envFilePath: [`./config/.env.${process.env.NODE_ENV}`],
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
       isGlobal: true,
     }),
     ChatMessageModule,
