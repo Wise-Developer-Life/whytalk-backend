@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfileService } from './profile.service';
 import { CommonResponse } from '../common/common.dto';
 import {
+  CreateBasicInfoRequest,
   ProfileImageResponse,
   ProfileResponse,
   UpdateProfileRequest,
@@ -23,10 +24,39 @@ import {
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  //FIXME: @Get(':userId') is not implemented
+  // design query: load_image=boolean
   @Get(':userId')
-  async getProfile(@Param('userId') userId: string) {
-    return { userId };
+  async getProfile(
+    @Param('userId') userId: string,
+  ): Promise<CommonResponse<ProfileResponse>> {
+    const profile = await this.profileService.getProfile(userId);
+    return {
+      message: 'Profile retrieved successfully',
+      data: {
+        userId: userId,
+        name: profile.name,
+        bio: profile.bio,
+      },
+    };
+  }
+
+  @Post(':userId')
+  async createBasicInfo(
+    @Param('userId') userId: string,
+    @Body() createBasicInfoRequest: CreateBasicInfoRequest,
+  ): Promise<CommonResponse<ProfileResponse>> {
+    const profile = await this.profileService.createBasicInfo(
+      userId,
+      createBasicInfoRequest,
+    );
+    return {
+      message: 'Basic info created successfully',
+      data: {
+        userId: userId,
+        name: profile.name,
+        bio: profile.bio,
+      },
+    };
   }
 
   @Put(':userId')
@@ -34,24 +64,16 @@ export class ProfileController {
     @Param('userId') userId: string,
     @Body() updateRequest: UpdateProfileRequest,
   ): Promise<CommonResponse<ProfileResponse>> {
-    const updatedUser = await this.profileService.updateProfile(
+    const updatedProfile = await this.profileService.updateProfile(
       userId,
       updateRequest,
     );
-    const profileImages = await updatedUser.getProfileImages(true);
-    const imageResponse = profileImages.map((image) => ({
-      id: image.id,
-      order: image.order,
-      createdAt: image.createdAt,
-      user: image.user.id,
-    }));
     return {
       message: 'Profile updated successfully',
       data: {
-        userId: updatedUser.id,
-        name: updatedUser.name,
-        bio: updatedUser.bio,
-        profileImages: imageResponse,
+        userId,
+        name: updatedProfile.name,
+        bio: updatedProfile.bio,
       },
     };
   }
@@ -85,7 +107,7 @@ export class ProfileController {
         id: imageEntity.id,
         order: imageEntity.order,
         createdAt: imageEntity.createdAt,
-        user: imageEntity.user.id,
+        user: userId,
       },
     };
   }

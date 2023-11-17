@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ChatMessageModule } from './chat-message/chat-message.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
@@ -13,6 +12,7 @@ import { ChatRoom } from './chat-message/chat-room.entity';
 import { ChatMessage } from './chat-message/chat-message.entity';
 import { ChatSocketModule } from './chat-socket/chat-socket.module';
 import { ProfileImage } from './user/profile_image.entity';
+import { UserProfile } from './user/profile.entity';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { ProfileImage } from './user/profile_image.entity';
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
         synchronize: true,
-        entities: [User, ChatRoom, ChatMessage, ProfileImage],
+        entities: [User, UserProfile, ChatRoom, ProfileImage, ChatMessage],
       }),
     }),
     ConfigModule.forRoot({
@@ -41,6 +41,6 @@ import { ProfileImage } from './user/profile_image.entity';
     ChatSocketModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ConfigService, ChatSocketGateway],
+  providers: [ConfigService, ChatSocketGateway],
 })
 export class AppModule {}

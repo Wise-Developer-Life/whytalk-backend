@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto } from './user.dto';
+import { CommonResponse } from '../common/common.dto';
 
 @Controller('user')
 export class UserController {
@@ -15,11 +16,13 @@ export class UserController {
     return this.userService.createUser(createUserRequest);
   }
 
-  @Put(':userId')
-  updateUser(
+  @Delete(':userId')
+  async deleteUser(
     @Param('userId') userId: string,
-    @Body() updateRequest: UpdateUserDto,
-  ) {
-    return this.userService.updateUser(userId, updateRequest);
+  ): Promise<CommonResponse<void>> {
+    const isSuccess = await this.userService.deleteUser(userId);
+    return {
+      message: isSuccess ? 'User deleted successfully' : 'User not deleted',
+    };
   }
 }

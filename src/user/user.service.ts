@@ -1,38 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto } from './user.dto';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserProfile } from './profile.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(UserProfile)
+    private userProfileRepository: Repository<UserProfile>,
   ) {}
 
   async getUser(userId: string) {
     return this.userRepository.findOneBy({ id: userId });
   }
 
-  async getUserByEmail(email: string) {
-    return this.userRepository.findOneBy({ email });
-  }
-
   async createUser(user: CreateUserDto) {
-    return this.userRepository.save(user);
+    return this.userRepository.save({
+      ...user,
+      // remove this
+      id: 'a2f9d9a3-be59-4a13-862b-6456f2e42463',
+    });
   }
 
-  async updateUser(userId: string, updateRequest: UpdateUserDto) {
-    const user = await this.userRepository.findOneBy({ id: userId });
-    if (!user) {
-      throw new Error('User not found');
-    }
+  async deleteUser(userId: string) {
+    const user = await this.getUser(userId);
+    const userProfile = await user.profile;
+    await this.userRepository.update(userId, {
+      profile: null,
+    });
 
-    for (const key in updateRequest) {
-      user[key] = updateRequest[key] || user[key];
-    }
-
-    return this.userRepository.save(user);
+    const removedProfile = await this.userProfileRepository.remove(userProfile);
+    const removedUser = await this.userRepository.remove(user);
+    return !!removedUser && !!removedProfile;
   }
 
   async isUserExistByEmail(email: string) {

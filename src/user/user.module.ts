@@ -7,9 +7,10 @@ import { ProfileImage } from './profile_image.entity';
 import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
 import { LocalImageStorageManager } from './local-image-storage-manager';
+import { UserProfile } from './profile.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, ProfileImage])],
+  imports: [TypeOrmModule.forFeature([User, UserProfile, ProfileImage])],
   controllers: [UserController, ProfileController],
   providers: [
     UserService,

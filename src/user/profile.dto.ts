@@ -1,3 +1,11 @@
+import { Gender } from './user.type';
+
+export interface CreateBasicInfoRequest {
+  name: string;
+  gender: Gender;
+  birthDate: Date;
+}
+
 export interface UpdateProfileRequest {
   name: string;
   bio: string;

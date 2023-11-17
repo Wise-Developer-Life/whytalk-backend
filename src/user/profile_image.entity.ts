@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from './user.entity';
+import { UserProfile } from './profile.entity';
 
 @Entity()
 export class ProfileImage {
@@ -18,8 +18,10 @@ export class ProfileImage {
   @Column('varchar', { length: 255, nullable: true, unique: true })
   url: string;
 
-  @ManyToOne(() => User, (user) => user.profileImages)
-  user: User;
+  @ManyToOne(() => UserProfile, (userProfile) => userProfile.profileImages, {
+    orphanedRowAction: 'delete',
+  })
+  userProfile: UserProfile;
 
   @CreateDateColumn({
     type: 'timestamp',
