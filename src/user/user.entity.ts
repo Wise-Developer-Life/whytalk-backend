@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
@@ -24,4 +25,7 @@ export class User {
   })
   @JoinColumn({ name: 'profile_id' })
   profile: Promise<UserProfile>;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 }

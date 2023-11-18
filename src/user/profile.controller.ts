@@ -12,14 +12,18 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfileService } from './profile.service';
-import { CommonResponse } from '../common/common.dto';
 import {
   CreateBasicInfoRequest,
-  ProfileImageResponse,
-  ProfileResponse,
+  CreateProfileResponse,
+  RetrieveProfileResponse,
   UpdateProfileRequest,
+  UpdateProfileResponse,
+  UploadProfileImageResponse,
 } from './profile.dto';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FileUploadBody } from '../common/common_request.dto';
 
+@ApiTags('Profile')
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
@@ -28,7 +32,7 @@ export class ProfileController {
   @Get(':userId')
   async getProfile(
     @Param('userId') userId: string,
-  ): Promise<CommonResponse<ProfileResponse>> {
+  ): Promise<RetrieveProfileResponse> {
     const profile = await this.profileService.getProfile(userId);
     return {
       message: 'Profile retrieved successfully',
@@ -44,7 +48,7 @@ export class ProfileController {
   async createBasicInfo(
     @Param('userId') userId: string,
     @Body() createBasicInfoRequest: CreateBasicInfoRequest,
-  ): Promise<CommonResponse<ProfileResponse>> {
+  ): Promise<CreateProfileResponse> {
     const profile = await this.profileService.createBasicInfo(
       userId,
       createBasicInfoRequest,
@@ -63,7 +67,7 @@ export class ProfileController {
   async updateProfile(
     @Param('userId') userId: string,
     @Body() updateRequest: UpdateProfileRequest,
-  ): Promise<CommonResponse<ProfileResponse>> {
+  ): Promise<UpdateProfileResponse> {
     const updatedProfile = await this.profileService.updateProfile(
       userId,
       updateRequest,
@@ -78,6 +82,12 @@ export class ProfileController {
     };
   }
 
+  @ApiOperation({ summary: 'Upload profile image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Upload a file',
+    type: FileUploadBody,
+  })
   @Post(':userId/image')
   @UseInterceptors(FileInterceptor('image'))
   async uploadProfileImage(
@@ -95,7 +105,7 @@ export class ProfileController {
       }),
     )
     image: Express.Multer.File,
-  ): Promise<CommonResponse<ProfileImageResponse>> {
+  ): Promise<UploadProfileImageResponse> {
     const imageEntity = await this.profileService.uploadProfileImage(
       userId,
       image,

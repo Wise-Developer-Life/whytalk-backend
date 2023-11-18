@@ -8,7 +8,7 @@ import { ChatSocketGateway } from './chat-socket/chat-socket.gateway';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { User } from './user/user.entity';
-import { ChatRoom } from './chat-message/chat-room.entity';
+import { ChatRoom } from './chat-message/chat_room.entity';
 import { ChatMessage } from './chat-message/chat-message.entity';
 import { ChatSocketModule } from './chat-socket/chat-socket.module';
 import { ProfileImage } from './user/profile_image.entity';

@@ -5,11 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { Profile } from 'passport-google-oauth20';
+import { ApiExcludeEndpoint, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 interface RequestWithOAuthUser extends Request {
   user: Profile;
 }
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -17,12 +19,14 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
+  @ApiOperation({ summary: 'Google OAuth2.0' })
   @Get('google')
   @UseGuards(AuthGuard('google'))
   googleAuth(@Req() request: RequestWithOAuthUser) {
     return request.user;
   }
 
+  @ApiExcludeEndpoint()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleOAuthCallback(@Req() request: RequestWithOAuthUser) {

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { LessThanOrEqual, Repository } from 'typeorm';
 import { ChatMessage } from './chat-message.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateMessageDTO } from './chat.dto';
-import { ChatRoomService } from './chat-room.service';
+import { CreateMessageDTO } from './chat-message.dto';
+import { ChatRoomService } from './chat_room.service';
 
 @Injectable()
 export class ChatMessageService {

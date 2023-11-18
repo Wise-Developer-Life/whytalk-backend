@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatRoom } from './chat-room.entity';
+import { ChatRoom } from './chat_room.entity';
 import { Repository } from 'typeorm';
 import { ChatMessage } from './chat-message.entity';
 

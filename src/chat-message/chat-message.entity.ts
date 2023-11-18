@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ChatRoom } from './chat-room.entity';
+import { ChatRoom } from './chat_room.entity';
 
 @Entity()
 export class ChatMessage {
