@@ -17,6 +17,6 @@ import { UserProfile } from './profile.entity';
     ProfileService,
     { provide: 'ImageStorageManager', useClass: LocalImageStorageManager },
   ],
-  exports: [UserService],
+  exports: [UserService, ProfileService],
 })
 export class UserModule {}

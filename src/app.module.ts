@@ -13,6 +13,8 @@ import { ChatMessage } from './chat-message/chat-message.entity';
 import { ChatSocketModule } from './chat-socket/chat-socket.module';
 import { ProfileImage } from './user/profile_image.entity';
 import { UserProfile } from './user/profile.entity';
+import { UtilsModule } from './utils/utils.module';
+import { MatchModule } from './match/match.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { UserProfile } from './user/profile.entity';
     UserModule,
     AuthModule,
     ChatSocketModule,
+    UtilsModule,
+    MatchModule,
   ],
   controllers: [AppController],
   providers: [ConfigService, ChatSocketGateway],

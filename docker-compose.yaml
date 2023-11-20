@@ -28,7 +28,32 @@ services:
         - whytalk-network
     volumes:
       - ./storage/postgres-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - whytalk-network
+    volumes:
+      - ./storage/rabbitmq-data:/var/lib/rabbitmq
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - whytalk-network
+    volumes:
+      - ./storage/redis-data:/data
+
+
 networks:
     whytalk-network:
         name: whytalk-network
         driver: bridge
+
+
