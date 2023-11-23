@@ -15,6 +15,7 @@ import { ProfileImage } from './user/profile_image.entity';
 import { UserProfile } from './user/profile.entity';
 import { UtilsModule } from './utils/utils.module';
 import { MatchModule } from './match/match.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MatchModule } from './match/match.module';
     ChatSocketModule,
     UtilsModule,
     MatchModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [ConfigService, ChatSocketGateway],
