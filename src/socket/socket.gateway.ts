@@ -9,7 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   ChatMessageSocketRequest,
   ChatMessageSocketResponse,
@@ -19,8 +19,10 @@ import {
 import * as moment from 'moment';
 import { ChatMessageService } from '../chat-message/chat-message.service';
 import { SocketService } from './socket.service';
+import { SocketJwtAuthGuard } from './socket.guard';
 
-@WebSocketGateway()
+@UseGuards(SocketJwtAuthGuard)
+@WebSocketGateway({ namespace: 'chat' })
 export class ChatSocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {

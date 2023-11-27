@@ -1,17 +1,13 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { MQ_EXCHANGE_CONSTANTS } from './rabbit-mq.constant';
 
 export const AppMQModule = RabbitMQModule.forRootAsync(RabbitMQModule, {
-  imports: [ConfigModule],
+  inject: [ConfigService],
   useFactory: (configService: ConfigService) => {
-    const rabbitMqHost = configService.get<string>('RABBITMQ_URL');
+    const rabbitMqHost = configService.get<string>('RABBITMQ_HOST');
     const rabbitMqPort = configService.get<number>('RABBITMQ_PORT');
     const rabbitMqUrl = `amqp://${rabbitMqHost}:${rabbitMqPort}`;
-    // const mqApiVersion = configService.get<string>('MQ_API_VERSION');
-    // if (!mqApiVersion) {
-    //   throw new Error('MQ_API_VERSION is not defined');
-    // }
     return {
       exchanges: [
         {

@@ -4,18 +4,17 @@ import { ChatMessageModule } from './chat-message/chat-message.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatSocketGateway } from './chat-socket/chat-socket.gateway';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { User } from './user/user.entity';
 import { ChatRoom } from './chat-message/chat_room.entity';
 import { ChatMessage } from './chat-message/chat-message.entity';
-import { ChatSocketModule } from './chat-socket/chat-socket.module';
 import { ProfileImage } from './user/profile_image.entity';
 import { UserProfile } from './user/profile.entity';
 import { UtilsModule } from './utils/utils.module';
 import { MatchModule } from './match/match.module';
 import { SocketModule } from './socket/socket.module';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -41,12 +40,11 @@ import { SocketModule } from './socket/socket.module';
     ChatMessageModule,
     UserModule,
     AuthModule,
-    ChatSocketModule,
     UtilsModule,
     MatchModule,
     SocketModule,
   ],
   controllers: [AppController],
-  providers: [ConfigService, ChatSocketGateway],
+  providers: [ConfigService],
 })
 export class AppModule {}

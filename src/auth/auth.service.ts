@@ -19,10 +19,7 @@ export class AuthService {
   }
 
   async generateJwtToken(payload: JwtPayload): Promise<string> {
-    return this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_AUTH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_AUTH_EXPIRATION_TIME'),
-    });
+    return this.jwtService.signAsync(payload);
   }
 
   async validateJwtToken(token: string): Promise<boolean> {
