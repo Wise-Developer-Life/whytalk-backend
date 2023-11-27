@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { Profile } from 'passport-google-oauth20';
 import { ApiExcludeEndpoint, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
 
 interface RequestWithOAuthUser extends Request {
   user: Profile;
@@ -17,7 +18,7 @@ export class AuthController {
   constructor(
     private readonly userService: UserService,
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
   ) {}
   @ApiOperation({ summary: 'Google OAuth2.0' })
   @Get('google')
@@ -49,15 +50,9 @@ export class AuthController {
     // );
 
     // generate token
-    const accessToken = await this.jwtService.signAsync(
-      {
-        email: userPayload.email,
-      },
-      {
-        secret: this.configService.get<string>('JWT_AUTH_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_AUTH_EXPIRATION_TIME'),
-      },
-    );
+    const accessToken = await this.authService.generateJwtToken({
+      email: userPayload.email,
+    });
 
     return {
       accessToken,
