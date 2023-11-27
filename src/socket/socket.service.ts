@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { AuthService } from '../auth/auth.service';
 
 type socketEvent = 'message' | 'info' | 'error' | 'warning';
 
@@ -7,19 +8,37 @@ type socketEvent = 'message' | 'info' | 'error' | 'warning';
 export class SocketService {
   private socketServer: Server = null;
   private readonly mapClientSockets = new Map<string, Socket>();
+  private readonly mapUserSockets = new Map<string, string>();
+  private readonly mapSocketUsers = new Map<string, string>();
 
-  constructor() {}
+  constructor(private readonly authService: AuthService) {}
 
+  async authenticateClient(socket: Socket) {
+    const { authorization } = socket.handshake.headers;
+    const token = this.authService.extractTokenFromAuthHeader(authorization);
+    const payload = await this.authService.validateJwtToken(token);
+
+    if (!payload) {
+      return false;
+    }
+
+    const { email: userId } = payload;
+
+    this.mapClientSockets.set(socket.id, socket);
+    this.mapSocketUsers.set(socket.id, userId);
+    this.mapUserSockets.set(userId, socket.id);
+
+    return true;
+  }
   setSocketServer(socketServer: Server) {
     this.socketServer = socketServer;
   }
 
-  setClientSocket(clientId: string, socket: Socket) {
-    this.mapClientSockets.set(clientId, socket);
-  }
-
   removeClientSocket(clientId: string) {
+    const userId = this.mapSocketUsers.get(clientId);
     this.mapClientSockets.delete(clientId);
+    this.mapSocketUsers.delete(clientId);
+    this.mapUserSockets.delete(userId);
   }
 
   joinRoom(clientId: string, roomId: string) {
@@ -72,5 +91,17 @@ export class SocketService {
       throw new Error(`client ${client} is not connected`);
     }
     socket.emit(event, payload);
+  }
+
+  publishEventToUser<T>(userId: string, event: socketEvent, payload: T) {
+    const client = this.mapUserSockets.get(userId);
+    if (!client) {
+      throw new Error(`user ${userId} is not connected`);
+    }
+    this.publishEvent(client, event, payload);
+  }
+
+  throwErrorToSocket<T>(client: string, payload: T) {
+    this.publishEvent(client, 'error', payload);
   }
 }

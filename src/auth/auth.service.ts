@@ -1,14 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './auth.type';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private configService: ConfigService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   extractTokenFromAuthHeader(authHeader: string): string {
     const tokens = authHeader.split(' ');
@@ -22,13 +18,21 @@ export class AuthService {
     return this.jwtService.signAsync(payload);
   }
 
-  async validateJwtToken(token: string): Promise<boolean> {
+  async validateJwtToken(token: string): Promise<JwtPayload> {
+    let payload = null;
     try {
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-      return this.validatePayload(payload);
+      payload = await this.jwtService.verifyAsync<JwtPayload>(token);
     } catch (e) {
-      return false;
+      Logger.error(`[AuthService] validateJwtToken: ${e.message}`);
+      return null;
     }
+
+    const isPayloadValid = await this.validatePayload(payload);
+    if (!isPayloadValid) {
+      return null;
+    }
+
+    return payload;
   }
 
   // TODO: implement this method

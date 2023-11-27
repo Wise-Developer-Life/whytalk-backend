@@ -21,7 +21,6 @@ import { ChatMessageService } from '../chat-message/chat-message.service';
 import { SocketService } from './socket.service';
 import { SocketJwtAuthGuard } from './socket.guard';
 
-@UseGuards(SocketJwtAuthGuard)
 @WebSocketGateway({ namespace: 'chat' })
 export class ChatSocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
@@ -37,9 +36,9 @@ export class ChatSocketGateway
     this.socketService.setSocketServer(server);
   }
 
+  @UseGuards(SocketJwtAuthGuard)
   handleConnection(@ConnectedSocket() client: Socket) {
     Logger.log(`client ${client.id} connect to web socket.`);
-    this.socketService.setClientSocket(client.id, client);
     this.socketService.publishEvent(
       client.id,
       'info',
