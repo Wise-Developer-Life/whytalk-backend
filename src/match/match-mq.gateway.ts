@@ -7,10 +7,14 @@ import {
   MQ_QUEUE_CONSTANTS,
   MQ_ROUTING_KEY_CONSTANTS,
 } from '../utils/rabbit-mq.constant';
+import { SocketService } from '../socket/socket.service';
 
 @Injectable()
 export class MatchMQGateway {
-  constructor(private readonly matchingService: MatchService) {}
+  constructor(
+    private readonly matchingService: MatchService,
+    private socketService: SocketService,
+  ) {}
   @RabbitSubscribe({
     exchange: MQ_EXCHANGE_CONSTANTS.MATCHING,
     routingKey: MQ_ROUTING_KEY_CONSTANTS.MATCHING,
