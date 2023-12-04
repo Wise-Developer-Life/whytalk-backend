@@ -1,7 +1,6 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { Profile } from 'passport-google-oauth20';
@@ -45,13 +44,13 @@ export class AuthController {
       await this.userService.createUser(userPayload);
     }
 
-    // const currentUser = await this.userService.getUserByEmail(
-    //   userPayload.email,
-    // );
+    const currentUser = await this.userService.getUserByEmail(
+      userPayload.email,
+    );
 
-    // generate token
     const accessToken = await this.authService.generateJwtToken({
-      email: userPayload.email,
+      userId: currentUser.id,
+      email: currentUser.email,
     });
 
     return {

@@ -14,11 +14,11 @@ import { UserProfile } from './user/profile.entity';
 import { UtilsModule } from './utils/utils.module';
 import { MatchModule } from './match/match.module';
 import { SocketModule } from './socket/socket.module';
-import { AuthService } from './auth/auth.service';
+import { ScriptModule } from './script/script.module';
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: ' jwt' }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
@@ -43,6 +43,7 @@ import { AuthService } from './auth/auth.service';
     UtilsModule,
     MatchModule,
     SocketModule,
+    ScriptModule,
   ],
   controllers: [AppController],
   providers: [ConfigService],

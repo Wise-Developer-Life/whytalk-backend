@@ -9,7 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   ChatMessageSocketRequest,
   ChatMessageSocketResponse,
@@ -19,7 +19,7 @@ import {
 import * as moment from 'moment';
 import { ChatMessageService } from '../chat-message/chat-message.service';
 import { SocketService } from './socket.service';
-import { SocketJwtAuthGuard } from './socket.guard';
+import { SocketEventEnum } from './socket-event.enum';
 
 @WebSocketGateway({ namespace: 'chat' })
 export class ChatSocketGateway
@@ -36,12 +36,18 @@ export class ChatSocketGateway
     this.socketService.setSocketServer(server);
   }
 
-  @UseGuards(SocketJwtAuthGuard)
-  handleConnection(@ConnectedSocket() client: Socket) {
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    const isUserValid = await this.socketService.authenticateClient(client);
+    if (!isUserValid) {
+      Logger.error(`client ${client.id} is not valid`);
+      client.disconnect();
+      return;
+    }
+
     Logger.log(`client ${client.id} connect to web socket.`);
     this.socketService.publishEvent(
       client.id,
-      'info',
+      SocketEventEnum.info,
       'welcome to chat server',
     );
   }
@@ -57,30 +63,26 @@ export class ChatSocketGateway
     @ConnectedSocket() client: Socket,
   ) {
     if (!joinRequest.chatRoomId) {
-      this.socketService.publishEvent(
+      return this.socketService.throwErrorToSocket(
         client.id,
-        'error',
         'chatRoomId is required',
       );
-      return;
     }
 
     if (this.socketService.isClientInRoom(client.id, joinRequest.chatRoomId)) {
       Logger.error(
         `client ${client.id} is already in room ${joinRequest.chatRoomId}`,
       );
-      this.socketService.publishEvent(
+      return this.socketService.throwErrorToSocket(
         client.id,
-        'error',
         `you are already in room ${joinRequest.chatRoomId}`,
       );
-      return;
     }
 
     this.socketService.joinRoom(client.id, joinRequest.chatRoomId);
     this.socketService.publishEvent(
       client.id,
-      'info',
+      SocketEventEnum.info,
       `join room ${joinRequest.chatRoomId}`,
     );
 
@@ -103,17 +105,15 @@ export class ChatSocketGateway
     const { chatRoomId } = message;
 
     if (!this.socketService.isRoomExist(chatRoomId)) {
-      return this.socketService.publishEvent(
+      return this.socketService.throwErrorToSocket(
         client.id,
-        'error',
         `room ${chatRoomId} does not exist`,
       );
     }
 
     if (!this.socketService.isClientInRoom(client.id, chatRoomId)) {
-      return this.socketService.publishEvent(
+      return this.socketService.throwErrorToSocket(
         client.id,
-        'error',
         `you are not in room ${chatRoomId}`,
       );
     }
@@ -123,7 +123,11 @@ export class ChatSocketGateway
       createdAt: moment().utc().toDate(),
     };
 
-    this.socketService.publishEventToRoom(chatRoomId, 'message', fullMessage);
+    this.socketService.publishEventToRoom(
+      chatRoomId,
+      SocketEventEnum.message,
+      fullMessage,
+    );
     await this.chatMessageService.createChatMessage(fullMessage);
   }
 }

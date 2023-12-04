@@ -7,6 +7,10 @@ export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
   extractTokenFromAuthHeader(authHeader: string): string {
+    if (!authHeader) {
+      return null;
+    }
+
     const tokens = authHeader.split(' ');
     if (tokens.length !== 2 && tokens[0] != 'Bearer') {
       return null;

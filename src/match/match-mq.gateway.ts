@@ -8,6 +8,7 @@ import {
   MQ_ROUTING_KEY_CONSTANTS,
 } from '../utils/rabbit-mq.constant';
 import { SocketService } from '../socket/socket.service';
+import { SocketEventEnum } from '../socket/socket-event.enum';
 
 @Injectable()
 export class MatchMQGateway {
@@ -30,7 +31,11 @@ export class MatchMQGateway {
       // TODO: reQueue non-matched user
       return;
     } else if (matchResult.matchStatus === 'matched') {
-      // TODO: use websocket to send match result to user
+      this.socketService.publishEventToUser(
+        matchResult.matchedUserId,
+        SocketEventEnum.match,
+        matchResult,
+      );
     }
 
     //TODO: ack message

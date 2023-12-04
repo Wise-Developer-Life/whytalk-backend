@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from '../auth/auth.service';
-
-type socketEvent = 'message' | 'info' | 'error' | 'warning';
+import { SocketEventEnum } from './socket-event.enum';
 
 @Injectable()
 export class SocketService {
@@ -22,7 +21,7 @@ export class SocketService {
       return false;
     }
 
-    const { email: userId } = payload;
+    const { userId } = payload;
 
     this.mapClientSockets.set(socket.id, socket);
     this.mapSocketUsers.set(socket.id, userId);
@@ -71,21 +70,21 @@ export class SocketService {
     return clients && clients.has(clientId);
   }
 
-  publishEventToRoom<T>(roomId: string, event: socketEvent, payload: T) {
+  publishEventToRoom<T>(roomId: string, event: SocketEventEnum, payload: T) {
     if (!this.socketServer) {
       throw new Error('socket server is not set');
     }
     this.socketServer.to(roomId).emit(event, payload);
   }
 
-  broadcastEvent<T>(event: socketEvent, payload: T) {
+  broadcastEvent<T>(event: SocketEventEnum, payload: T) {
     if (!this.socketServer) {
       throw new Error('socket server is not set');
     }
     this.socketServer.emit(event, payload);
   }
 
-  publishEvent<T>(client: string, event: socketEvent, payload: T) {
+  publishEvent<T>(client: string, event: SocketEventEnum, payload: T) {
     const socket = this.mapClientSockets.get(client);
     if (!socket) {
       throw new Error(`client ${client} is not connected`);
@@ -93,7 +92,7 @@ export class SocketService {
     socket.emit(event, payload);
   }
 
-  publishEventToUser<T>(userId: string, event: socketEvent, payload: T) {
+  publishEventToUser<T>(userId: string, event: SocketEventEnum, payload: T) {
     const client = this.mapUserSockets.get(userId);
     if (!client) {
       throw new Error(`user ${userId} is not connected`);
@@ -102,6 +101,6 @@ export class SocketService {
   }
 
   throwErrorToSocket<T>(client: string, payload: T) {
-    this.publishEvent(client, 'error', payload);
+    this.publishEvent(client, SocketEventEnum.error, payload);
   }
 }
